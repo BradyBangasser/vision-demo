@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <wpi/json.h>
-#include <CameraServer.h>
+#include <cameraserver/CameraServer.h>
 
 // TODO, make this better
 struct CameraConfig {
