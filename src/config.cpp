@@ -1,4 +1,4 @@
-#include "config.hpp"
+#include "config.h"
 #include "constants.h"
 #include "errors.hpp"
 #include <wpi/raw_istream.h>
@@ -19,8 +19,8 @@ bool loadConfig(VisionConfig &vconfig) {
     // Try to parse the config file
     try {
         configFile = wpi::json::parse(is);
-    } catch (const wpi::json::parse_error &e) {
-        ParseFatalError("I couldn't parse the config file at {}, because byte {}: ", CONFIG_FILE, e.byte, e.what());
+    } catch (const wpi::json::parse_error &err) {
+        ParseFatalError("I couldn't parse the config file at {}, because byte {}: ", CONFIG_FILE, err.byte, err.what());
         return false;
     }
 
@@ -33,8 +33,8 @@ bool loadConfig(VisionConfig &vconfig) {
     // Get team number
     try {
         vconfig.team = configFile.at("team").get<unsigned int>();
-    } catch (const wpi::json::exception &e) {
-        ParseFatalError("Couldn't read team number: {}", e.what());
+    } catch (const wpi::json::exception &err) {
+        ParseFatalError("Couldn't read team number: {}", err.what());
         return false;
     }
 
@@ -60,19 +60,40 @@ bool loadConfig(VisionConfig &vconfig) {
                 return false;
             }
         }
-    } catch (const wpi::json::exception &e) {
-        ParseFatalError("Couldn't load cameras: {}", e.what());
+    } catch (const wpi::json::exception &err) {
+        ParseFatalError("Couldn't load cameras: {}", err.what());
         return false;
     }
+
+    return true;
 } // loadConfig
 
 
 bool loadCameraConfig(VisionConfig &vconfig, const wpi::json &config) {
     CameraConfig cconfig;
 
+    // Get camera Name
     try {
-
-    } catch (const wpi::json::exception &e) {
-        
+        cconfig.name = config.at("name").get<std::string>();
+    } catch (const wpi::json::exception &err) {
+        ParseError("Failed to get camera name: {}", err);
+        return false;
     }
+
+    // Get camera path
+    try {
+        cconfig.name = config.at("path").get<std::string>();
+    } catch (const wpi::json::exception &err) {
+        ParseError("Failed to get camera path: {}", err);
+        return false;
+    }
+
+    // stream props
+    if (config.count("stream")) cconfig.streamConfig = config.at("stream");
+
+    cconfig.config = config;
+
+    vconfig.cameraConfigs.emplace_back(std::move(cconfig));
+
+    return true;
 }

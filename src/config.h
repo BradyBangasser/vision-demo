@@ -1,5 +1,5 @@
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include <vector>
 #include <string>
@@ -22,7 +22,7 @@ struct VisionConfig {
 };
 
 // TODO make this better
-bool loadCameraConfig(const VisionConfig &vconfig, const wpi::json &config);
-bool loadConfig(const VisionConfig &vconfig);
+bool loadCameraConfig(VisionConfig &vconfig, const wpi::json &config);
+bool loadConfig(VisionConfig &vconfig);
 
 #endif
