@@ -8,11 +8,13 @@ DESTDIR?=/home/pi/
 SRCS=$(wildcard src/*.cpp)
 OBJS=$(patsubst src/%.cpp, out/%.o, $(SRCS))
 
+.PHONY: clean
+
 $(EXE): $(OBJS)
-	$(CXX) $(DEPS_CFLAGS) $(DEPS_LIBS) $(LD_FLAGS) -o $(EXE) $(OBJS)
+	$(CXX) $(DEPS_CFLAGS) $(DEPS_LIBS) $(LD_FLAGS) -o $(EXE) $(OBJS) -O3
 
 out/%.o: src/%.cpp
-	$(CXX) $(DEPS_CFLAGS) $(DEPS_LIBS) -o $@ -c $^
+	$(CXX) $(DEPS_CFLAGS) $(DEPS_LIBS) -o $@ -c $^ -O3
 
 clean:
-	rm -rf out/* $(EXE)
+	rm -rf out/* $(EXE) ; clear

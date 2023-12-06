@@ -1,13 +1,14 @@
-#include "config.h"
+#include "config.hpp"
 #include "constants.h"
 #include "errors.hpp"
 #include <wpi/raw_istream.h>
+#include <iostream>
 
-bool loadConfig(VisionConfig &vconfig) {
+bool loadConfig(const char *cf, VisionConfig &vconfig) {
     std::error_code errorCode;
 
     // Attempts to open the config file
-    wpi::raw_fd_istream is(CONFIG_FILE, errorCode);
+    wpi::raw_fd_istream is(cf, errorCode);
 
     if (errorCode) {
         ParseFatalError("I couldn't find the config file at {}, because {}", CONFIG_FILE, errorCode.message());
@@ -58,6 +59,8 @@ bool loadConfig(VisionConfig &vconfig) {
             if (!loadCameraConfig(vconfig, camera)) {
                 ParseFatalError("Failed to load camera");
                 return false;
+            } else {
+                fmt::print("Loaded Camera {}\n", vconfig.cameras.size());
             }
         }
     } catch (const wpi::json::exception &err) {
@@ -75,16 +78,18 @@ bool loadCameraConfig(VisionConfig &vconfig, const wpi::json &config) {
     // Get camera Name
     try {
         cconfig.name = config.at("name").get<std::string>();
+        fmt::print("ccn: {}\n", cconfig.name);
     } catch (const wpi::json::exception &err) {
-        ParseError("Failed to get camera name: {}", err);
+        ParseError("Failed to get camera name: {}", err.what());
         return false;
     }
 
     // Get camera path
     try {
-        cconfig.name = config.at("path").get<std::string>();
+        cconfig.path = config.at("path").get<std::string>();
+        fmt::print("ccp: {}\n", cconfig.path);
     } catch (const wpi::json::exception &err) {
-        ParseError("Failed to get camera path: {}", err);
+        ParseError("Failed to get camera path: {}", err.what());
         return false;
     }
 
