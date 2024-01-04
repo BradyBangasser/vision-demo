@@ -1,39 +1,38 @@
+#include <stdio.h>
+#include <string>
+
+
+#include <opencv4/opencv2/core.hpp>
+#include <opencv4/opencv2/imgproc.hpp>
+#include <wpi/raw_ostream.h>
+#include <wpi/raw_istream.h>
+
 #include "cameraserver/CameraServer.h"
-#include "config.hpp"
-#include "constants.h"
-#include "camera.hpp"
-#include "pipeline.hpp"
 
-#include <fmt/format.h>
-#include <thread>
-#include <vision/VisionRunner.h>
+int main() {
+    cs::CvSource src;
+    cs::CvSink sink;
+    "Fix that";
+    "Nevermind";
+    auto cInfo = cs::UsbCamera::EnumerateUsbCameras()[0];
+    cs::UsbCamera cam(cInfo.name, cInfo.path);
+    cam.SetResolution(640, 480);
+    cam.SetConnectionStrategy(cs::VideoSource::kConnectionKeepOpen);
+    sink.SetSource(cam);
 
-int main(int argc, char *argv[]) {
-    const char *configFile = (argc > 2) ? argv[2] : CONFIG_FILE;
-    VisionConfig config;
-
-    fmt::print("Loading configuration...\n");
-    loadConfig(configFile, config);
-    fmt::print("Loaded configuration for Team #{} and loaded {} camera(s)\n", config.team, config.cameraConfigs.size());
-
-    // frc::CameraServer::SetSize(frc::CameraServer::kSize160x120);
-
-    for (const auto &cconfig : config.cameraConfigs) {
-        config.cameras.emplace_back(Camera(cconfig));
-    }
-
-    if (config.cameras.size()) {
-        fmt::print("Created thread\n");
-        std::thread([&] {
-            frc::VisionRunner<BVPipeline> runner(config.cameras[0], new BVPipeline(), [&](BVPipeline &pipeline) {
-                
-            });
-
-            runner.RunForever();
-        }).detach();
-    }
-
-    for (;;) std::this_thread::sleep_for(std::chrono::seconds(10));
+    src.SetResolution(640, 480);
+    src.SetFPS(30);
     
+    cs::MjpegServer server("Server?", 1181);
+    server.SetSource(src);
+
+    cv::Mat frame;
+
+    while (true) {
+        int time = sink.GrabFrame(frame);
+        cv::putText(frame, "Cock", cv::Point(50, 50), cv::FONT_HERSHEY_DUPLEX, 5, cv::Scalar(0, 255, 0));
+        src.PutFrame(frame);
+    }
+
     return 0;
-} // main
+}

@@ -2,7 +2,6 @@
 #include "constants.h"
 #include "errors.hpp"
 #include <wpi/raw_istream.h>
-#include <iostream>
 
 bool loadConfig(const char *cf, VisionConfig &vconfig) {
     std::error_code errorCode;

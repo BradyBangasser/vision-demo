@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.ts": "typescript",
-        "thread": "cpp"
+        "thread": "cpp",
+        "*.inc": "cpp"
     }
 }
